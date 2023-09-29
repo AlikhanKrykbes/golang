@@ -1,0 +1,137 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+	product := "vehicle"
+	price := 35000
+	fmt.Printf("You are purchasing a %s for $%d\n", product, price)
+	fmt.Println("Welcome to the Payment Console App")
+	fmt.Println("Choose a payment method:")
+	fmt.Println("1. Credit Card")
+	fmt.Println("2. PayPal")
+	fmt.Println("3. QIWI Wallet")
+
+	var payWay int
+	_, err := fmt.Scanf("%d", &payWay)
+	if err != nil || (payWay < 1 || payWay > 3) {
+		fmt.Println("Invalid choice. Please enter 1, 2, or 3.")
+		return
+	}
+
+	var payment Payment
+	switch payWay {
+	case 1:
+		payment = NewCardPayment("12345", "351", "10000")
+	case 2:
+		payment = NewPayPalPayment("12345", "255", "46481")
+	case 3:
+		payment = NewQIWIPayment("65186", "73800")
+	}
+
+	// Check the balance before processing the order
+	if err := checkBalance(payment, price); err != nil {
+		fmt.Println("Payment failed:", err)
+		return
+	}
+
+	processOrder(product, price, payment)
+}
+
+func checkBalance(payment Payment, price int) error {
+	// Convert balance to an integer (you should replace this with actual logic)
+	balanceInt, err := strconv.Atoi(payment.GetBalance())
+	if err != nil {
+		return err
+	}
+
+	// Check if the balance is sufficient
+	if balanceInt < price {
+		return fmt.Errorf("Insufficient balance. Your balance is $%d, but the purchase price is $%d", balanceInt, price)
+	}
+
+	return nil
+}
+
+type Payment interface {
+	Pay() error
+	GetBalance() string
+}
+
+type cardPayment struct {
+	cardNumber, cvv, balance string
+}
+
+func NewCardPayment(cardNumber, cvv, balance string) Payment {
+	return &cardPayment{
+		cardNumber: cardNumber,
+		cvv:        cvv,
+		balance:    balance,
+	}
+}
+
+func (p *cardPayment) Pay() error {
+	fmt.Println("Processing card payment...")
+	// ... implementation
+	return nil // You can replace this with appropriate error handling logic
+}
+
+func (p *cardPayment) GetBalance() string {
+	return p.balance
+}
+
+type payPalPayment struct {
+	cardNumber, cvv, balance string
+}
+
+func NewPayPalPayment(cardNumber, cvv, balance string) Payment {
+	return &payPalPayment{
+		cardNumber: cardNumber,
+		cvv:        cvv,
+		balance:    balance,
+	}
+}
+
+func (p *payPalPayment) Pay() error {
+	fmt.Println("Processing PayPal payment...")
+	// ... implementation
+	return nil // You can replace this with appropriate error handling logic
+}
+
+func (p *payPalPayment) GetBalance() string {
+	return p.balance
+}
+
+type qiwiPayment struct {
+	cardNumber, balance string
+}
+
+func NewQIWIPayment(cardNumber, balance string) Payment {
+	return &qiwiPayment{
+		cardNumber: cardNumber,
+		balance:    balance,
+	}
+}
+
+func (p *qiwiPayment) Pay() error {
+	fmt.Println("Processing QIWI payment...")
+	// ... implementation
+	return nil // You can replace this with appropriate error handling logic
+}
+
+func (p *qiwiPayment) GetBalance() string {
+	return p.balance
+}
+
+func processOrder(product string, price int, payment Payment) {
+	// ... implementation
+	err := payment.Pay()
+	if err != nil {
+		fmt.Println("Payment failed:", err)
+		return
+	}
+	fmt.Println("Payment successful for", product)
+}
