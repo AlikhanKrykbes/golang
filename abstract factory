@@ -1,0 +1,87 @@
+package main
+
+import "fmt"
+
+// AbstractFactory interface defines methods for creating vehicles and their components.
+type AbstractFactory interface {
+	CreateVehicle() Vehicle
+	CreateEngine() Engine
+}
+
+// Vehicle interface represents a vehicle.
+type Vehicle interface {
+	GetType() string
+}
+
+// Engine interface represents an engine.
+type Engine interface {
+	GetType() string
+}
+
+// ConcreteFactory1 creates Sports Cars and their engines.
+type ConcreteFactory1 struct{}
+
+func (f *ConcreteFactory1) CreateVehicle() Vehicle {
+	return &SportsCar{}
+}
+
+func (f *ConcreteFactory1) CreateEngine() Engine {
+	return &SportsEngine{}
+}
+
+// ConcreteFactory2 creates Economy Cars and their engines.
+type ConcreteFactory2 struct{}
+
+func (f *ConcreteFactory2) CreateVehicle() Vehicle {
+	return &EconomyCar{}
+}
+
+func (f *ConcreteFactory2) CreateEngine() Engine {
+	return &EconomyEngine{}
+}
+
+// SportsCar is a concrete implementation of a Sports Car.
+type SportsCar struct{}
+
+func (c *SportsCar) GetType() string {
+	return "Sports Car"
+}
+
+// EconomyCar is a concrete implementation of an Economy Car.
+type EconomyCar struct{}
+
+func (c *EconomyCar) GetType() string {
+	return "Economy Car"
+}
+
+// SportsEngine is a concrete implementation of an engine for a Sports Car.
+type SportsEngine struct{}
+
+func (e *SportsEngine) GetType() string {
+	return "Sports Engine"
+}
+
+// EconomyEngine is a concrete implementation of an engine for an Economy Car.
+type EconomyEngine struct{}
+
+func (e *EconomyEngine) GetType() string {
+	return "Economy Engine"
+}
+
+func main() {
+	// Create a factory for Sports Cars
+	factory1 := &ConcreteFactory1{}
+	sportsCar := factory1.CreateVehicle()
+	sportsEngine := factory1.CreateEngine()
+
+	fmt.Printf("Type of Vehicle: %s\n", sportsCar.GetType())
+	fmt.Printf("Type of Engine: %s\n", sportsEngine.GetType())
+
+	// Create a factory for Economy Cars
+	factory2 := &ConcreteFactory2{}
+	economyCar := factory2.CreateVehicle()
+	economyEngine := factory2.CreateEngine()
+
+	fmt.Printf("Type of Vehicle: %s\n", economyCar.GetType())
+	fmt.Printf("Type of Engine: %s\n", economyEngine.GetType())
+}
