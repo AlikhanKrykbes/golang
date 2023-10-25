@@ -1,0 +1,65 @@
+package main
+
+import "fmt"
+
+
+type Command interface {
+	Execute()
+}
+
+
+type Light struct {
+	isOn bool
+}
+
+func (l *Light) TurnOn() {
+	l.isOn = true
+	fmt.Println("Свет включен")
+}
+
+func (l *Light) TurnOff() {
+	l.isOn = false
+	fmt.Println("Свет выключен")
+}
+
+
+type TurnOnCommand struct {
+	light *Light
+}
+
+func (c *TurnOnCommand) Execute() {
+	c.light.TurnOn()
+}
+
+
+type TurnOffCommand struct {
+	light *Light
+}
+
+func (c *TurnOffCommand) Execute() {
+	c.light.TurnOff()
+}
+
+
+type RemoteControl struct {
+	command Command
+}
+
+func (r *RemoteControl) PressButton() {
+	r.command.Execute()
+}
+
+func main() {
+
+	light := &Light{}
+	turnOnCommand := &TurnOnCommand{light: light}
+	turnOffCommand := &TurnOffCommand{light: light}
+
+	remote := &RemoteControl{}
+
+	remote.command = turnOnCommand
+	remote.PressButton() 
+
+	remote.command = turnOffCommand
+	remote.PressButton() 
+}
