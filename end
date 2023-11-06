@@ -1,0 +1,245 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+// Sport interfaces
+type Sport interface {
+	GetRecommendation() string
+}
+
+type Football struct{}
+
+func (f Football) GetRecommendation() string {
+	return "Cleats, shin guards, ball"
+}
+
+type Basketball struct{}
+
+func (b Basketball) GetRecommendation() string {
+	return "Basketball shoes, jersey, ball"
+}
+
+// Observer patterns
+type Subject interface {
+	Attach(observer Observer)
+	Detach(observer Observer)
+	Notify()
+}
+
+type Observer interface {
+	Update()
+}
+
+type ShopSubject struct {
+	observers []Observer
+}
+
+// Subject methods
+
+type ShopObserver struct{}
+
+func (o ShopObserver) Update() {
+	fmt.Println("Notification sent")
+}
+
+// Decorator patterns
+type Color interface {
+	GetColor() string
+}
+
+// Color types
+type Red struct{}
+
+func (r *Red) GetColor() string {
+	return "Red"
+}
+
+type Blue struct{}
+
+func (b *Blue) GetColor() string {
+	return "Blue"
+}
+
+// Color factory
+type ColorFactory struct{}
+
+func (f ColorFactory) GetColor(name string) Color {
+	switch name {
+	case "red":
+		return &Red{}
+	case "blue":
+		return &Blue{}
+	default:
+		return nil
+	}
+}
+
+// Recommendation decorator
+type RecommendationDecorator struct {
+	Sport
+	Size  string
+	Color Color
+}
+
+func (r RecommendationDecorator) GetRecommendation() string {
+	return fmt.Sprintf(
+		"%s, size %s, color %s",
+		r.Sport.GetRecommendation(),
+		r.Size,
+		r.Color.GetColor(),
+	)
+}
+
+// Cart
+type Cart struct {
+	items []string
+}
+
+func (c *Cart) AddItem(item string) {
+	c.items = append(c.items, item)
+}
+
+func (c *Cart) RemoveItem(item string) {
+	// Implement removal logic
+	for i, cartItem := range c.items {
+		if cartItem == item {
+			c.items = append(c.items[:i], c.items[i+1:]...)
+			break
+		}
+	}
+}
+
+func (c *Cart) DeleteAll() {
+	c.items = []string{}
+}
+
+func (c *Cart) PrintItems() {
+	fmt.Println("Cart items:")
+	for _, item := range c.items {
+		fmt.Println(item)
+	}
+}
+
+// Item model
+type Item struct {
+	Name  string
+	Stock int
+}
+
+// Sport factory
+type SportFactory struct{}
+
+func (f SportFactory) GetSport(name string) Sport {
+	switch name {
+	case "football":
+		return &Football{}
+	case "basketball":
+		return &Basketball{}
+	default:
+		return nil
+	}
+}
+
+// Recommendation service
+type RecommendationService struct {
+	SportFactory
+	ColorFactory
+}
+
+func (s *RecommendationService) GetRecommendation(sportName string, size string, colorName string) RecommendationDecorator {
+	sport := s.SportFactory.GetSport(sportName)
+	color := s.ColorFactory.GetColor(colorName)
+
+	return RecommendationDecorator{
+		Sport: sport,
+		Size:  size,
+		Color: color,
+	}
+}
+
+func main() {
+	rand.Seed(time.Now().UnixNano())
+
+	var items [3]Item
+
+	// Initialize random stock
+	for i := range items {
+		items[i].Name = fmt.Sprintf("Item %d", i+1) // Assign item names
+		items[i].Stock = rand.Intn(10)
+	}
+
+	// Create a cart
+	cart := Cart{}
+
+	for {
+		fmt.Println("Select an action:")
+		fmt.Println("1. View cart")
+		fmt.Println("2. Add item to cart")
+		fmt.Println("3. Change sport and get recommendation")
+		fmt.Println("4. Delete item from cart")
+		fmt.Println("5. Checkout")
+		
+		fmt.Println("6. Quit")
+
+		var choice int
+		fmt.Scan(&choice)
+
+		switch choice {
+		case 1:
+			// Print cart items
+			cart.PrintItems()
+
+		case 2:
+			// Prompt for item
+			fmt.Print("Enter item to add to the cart (or type 'cancel' to cancel): ")
+			var item string
+			fmt.Scan(&item)
+
+			if item == "cancel" {
+				fmt.Println("Item addition canceled.")
+			} else {
+				cart.AddItem(item)
+			}
+
+		case 3:
+			// Change sport
+			fmt.Print("Enter a new sport: ")
+			var sportName string
+			fmt.Scan(&sportName)
+
+			// Get a new recommendation
+			service := RecommendationService{}
+			rec := service.GetRecommendation(sportName, "large", "red")
+			fmt.Println("Recommendation:", rec.GetRecommendation())
+
+		case 4:
+			// Prompt for item to delete
+			fmt.Print("Enter item to delete from the cart: ")
+			var item string
+			fmt.Scan(&item)
+			cart.RemoveItem(item)
+
+		case 5:
+			// Process payment
+			// Empty cart
+			cart.DeleteAll()
+			fmt.Println("Checkout completed.")
+
+		case 6:
+			fmt.Println("Canceling the current action.")
+
+		case 7:
+			fmt.Println("Quitting the program.")
+			return
+
+		default:
+			fmt.Println("Invalid choice. Please choose a valid option.")
+		}
+	}
+}
+
+// recommendation, add new button
